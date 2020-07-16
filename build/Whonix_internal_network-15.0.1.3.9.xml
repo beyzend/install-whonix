@@ -1,0 +1,9 @@
+<network>
+  <name>Whonix-Internal</name>
+  <bridge name='virbr2' stp='on' delay='0'/>
+  <ip address='10.120.0.5' netmask='255.255.255.0'>
+    <dhcp>
+      <range start='10.120.0.1' end='10.120.0.240' />
+    </dhcp>
+  </ip>
+</network>

@@ -38,8 +38,8 @@ function fail_verification {
 }
 
 step "Network Start: Ensure KVM's / QEMU's default networking is enabled and has started"
-virsh -c qemu:///system net-autostart default
-virsh -c qemu:///system net-start default
+virsh -c qemu:///system net-autostart default || true
+virsh -c qemu:///system net-start default || true
 step "DONE!"
 
 # See config.sh for the $WORKING_DIR variable

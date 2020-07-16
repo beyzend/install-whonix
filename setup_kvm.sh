@@ -7,8 +7,8 @@ source ./common.sh
 error_if_root
 IMG_STORAGE='/var/lib/libvirt/images'
 
-cd $WORKING_DIR
-
+#cd $WORKING_DIR
+cd .
 function whonix_13_steps {
     step "Using 'legacy' Whonix 13 procedure."
     substep "Defining Whonix-Gateway VM."
@@ -36,12 +36,31 @@ function whonix_14_steps {
     virsh -c qemu:///system define Whonix-Workstation*.xml
 }
 
+function whonix_15_steps {
+    step "Using Whonix 15 procedure."
+    substep "Defining the Whonix virtual networks."
+    #virsh -c "qemu:///system" net-define Whonix_external*.xml
+    #virsh -c qemu:///system net-define Whonix_internal*.xml
+    # Start External and Internal networks
+    # virsh -c qemu:///system net-autostart Whonix-External
+    # virsh -c qemu:///system net-start Whonix-External
+    # virsh -c qemu:///system net-autostart Whonix-Internal
+    # virsh -c qemu:///system net-start Whonix-Internal
+    # Import the Whonix Gateway and Workstation images.
+    substep "Importing the Whonix VMs."
+    virsh -c qemu:///system define Whonix-Gateway-XFCE-15.0.1.3.9.xml
+    virsh -c qemu:///system define Whonix-Workstation-*.xml
+
+}
+
 MAJOR_VERSION="$(echo $VERSION | cut -d '.' -f 1)"
 
 if [[ $MAJOR_VERSION == "13" ]]; then
     whonix_13_steps
 elif [[ $MAJOR_VERSION == "14"  ]]; then
     whonix_14_steps
+elif [[ $MAJOR_VERSION == "15" ]]; then
+    whonix_15_steps
 else
     error "Don't know what to do with Whonix $MAJOR_VERSION! Sorry."
 fi
