@@ -37,6 +37,11 @@ function fail_verification {
     error "Unable to verify $1! This can happen with interrupted or corrupted downloads.\n Try deleting the '$WORKING_DIR' directory and running '$THIS_COMMAND' again."
 }
 
+step "Network Start: Ensure KVM's / QEMU's default networking is enabled and has started"
+virsh -c qemu:///system net-autostart default
+virsh -c qemu:///system net-start default
+step "DONE!"
+
 # See config.sh for the $WORKING_DIR variable
 mkdir -p $WORKING_DIR
 cd $WORKING_DIR
