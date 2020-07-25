@@ -6,7 +6,14 @@ source ./common.sh
 error_if_root # Running this with sudo privileges can't be a good idea.
 
 # See config.sh for the $VERSION variable
-BASE="https://download.whonix.org/linux/$VERSION"
+BASE="https://download.whonix.org/libvirt/$VERSION"
+
+# https://download.whonix.org/libvirt/15.0.1.3.9/Whonix-XFCE-15.0.1.3.9.libvirt.xz
+
+WHONIX_FILE="Whonix-XFCE-$VERSION.libvirt.xz"
+WHONIX_URL="$BASE/$WHONIX_FILE"
+WHONIX_SIG="$WHONIX_FILE.asc"
+WHONIX_SIG_URL="$BASE/$WHONIX_SIG"
 
 GATEWAY_URL="$BASE/Whonix-Gateway-$VERSION.libvirt.xz"
 GATEWAY_SIG="$BASE/Whonix-Gateway-$VERSION.libvirt.xz.asc"
@@ -23,10 +30,12 @@ SIGNING_ID='8D66066A2EEACCDA'
 SIGNING_EMAIL='Patrick Schleizer <adrelanos@riseup.net>'
 SIGNING_FINGERPRINT='Key fingerprint = 916B 8D99 C38E AF5E 8ADC  7A2A 8D66 066A 2EEA CCDA'
 
+#SIGNING_ID_HULA='50C78B6F9FF2EC85'
+
 THIS_COMMAND="$0"
 
 function get {
-    wget -q $1
+    curl --tlsv1.2 --proto =https $1 -o $2 
 }
 
 function fail_signing_key_verification {
@@ -49,27 +58,21 @@ cd $WORKING_DIR
 # delete any signatures or checksums that may be lying around
 silently rm *.asc *.sha512sums *.xml *.qcow2 || true
 
-step "Downloading the two VM images. This might take a while."
-substep "Downloading the Whonix-Gateway VM."
-wget --no-clobber $GATEWAY_URL
+step "Downloading Whonix VM's."
+substep "Downloading Whonix images"
+#curl --tlsv1.2 --proto =https $WHONIX_URL -o $WHONIX_FILE 
+#get $WHONIX_URL $WHONIX_FILE
+get $WHONIX_SIG_URL $WHONIX_SIG
 
-substep "Downloading the Whonix-Workstation VM."
-wget --no-clobber $WORKSTATION_URL
 
-get $GATEWAY_SIG
-get $GATEWAY_SHA
-get $GATEWAY_SHA_SIG
-
-get $WORKSTATION_SIG
-get $WORKSTATION_SHA
-get $WORKSTATION_SHA_SIG
 
 step "Verifying the downloads."
 
 substep "Downloading and verifying the signing key."
 quietly gpg --fingerprint # just in case this has never been run
 quietly chmod --recursive og-rwx ~/.gnupg
-get $SIGNING_KEY_URL -O patrick.asc
+#get $SIGNING_KEY_URL -O patrick.asc
+get $SIGNING_KEY_URL patrick.asc
 gpg --keyid-format long --with-fingerprint patrick.asc | grep -q "$SIGNING_ID" || \
     fail_signing_key_verification
 gpg --keyid-format long --with-fingerprint patrick.asc | grep -q "$SIGNING_EMAIL" || \
@@ -80,21 +83,15 @@ gpg --keyid-format long --with-fingerprint patrick.asc | grep -q "$SIGNING_FINGE
 substep "Signing key verified. Importing."
 gpg --import patrick.asc
 
-substep "Verifying Whonix-Gateway."
-gpg --verify-options show-notations --verify Whonix-Gateway-*.libvirt.xz.asc Whonix-Gateway-*.libvirt.xz || \
+substep "Verifying Whonix Download."
+gpg --verify-options show-notations --verify Whonix*.libvirt.xz.asc Whonix*.libvirt.xz || \
     fail_verification "Whonix-Gateway"
-substep "Success!"
-
-substep "Verifying Whonix-Workstation."
-gpg --verify-options show-notations --verify Whonix-Workstation-*.libvirt.xz.asc Whonix-Workstation-*.libvirt.xz || \
-    fail_verification "Whonix-Workstation"
 substep "Success!"
 
 substep "Files verified successfully."
 
 step "Decompressing verified VMs."
-tar -xf Whonix-Gateway*.libvirt.xz
-tar -xf Whonix-Workstation*.libvirt.xz
+tar -xf Whonix*.libvirt.xz
 
 step "Done!"
 step "The next step is 'setup_kvm.sh'."

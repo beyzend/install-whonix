@@ -9,9 +9,6 @@
     <discard/>
     <nosharepages/>
   </memoryBacking>
-  <blkiotune>
-    <weight>250</weight>
-  </blkiotune>
   <vcpu placement='static' cpuset='0'>1</vcpu>
   <os>
     <type>hvm</type>
@@ -42,7 +39,7 @@
   <devices>
     <disk type='file' device='disk'>
       <driver name='qemu' type='qcow2'/>
-      <source file='/var/lib/libvirt/images/Whonix-Gateway.qcow2'/>
+      <source file='/mnt/bomb_disk/var/lib/libvirt/images/Whonix-Gateway.qcow2'/>
       <target dev='vda' bus='virtio'/>
     </disk>
     <interface type='network'>
